@@ -41,7 +41,7 @@ func main() {
 	// reporter
 	ticker := time.NewTicker(time.Second * 10)
 	go func() {
-		for range ticker.C {
+		for _ = range ticker.C {
 			// snapshot metrics
 			mutex.Lock()
 			snapshot := metrics
