@@ -10,12 +10,13 @@ import (
 	"time"
 )
 
-//TODO: endpoint to peek at the metrics for current period
-//TODO: expose and report some metrics about the service itself, including expvar stuff
+import _ "expvar"
+
+//TODO: expose and report some metrics about the service itself
 
 var port = flag.String("p", "9010", "port to listen to")
 
-var influxdbUrl string // = flag.String("influxdb", "http://192.168.10.10:8086/db/metrics/series?u=metrics&p=metrics", "InfluxDB url to post to")
+var influxdbUrl string
 var influxdbHost = flag.String("host", "192.168.10.10", "InfluxDB Host")
 var influxdbPort = flag.String("port", "8086", "InfluxDB Port")
 var influxdbDb = flag.String("db", "metrics", "InfluxDB Database")
@@ -28,9 +29,9 @@ var mutex = &sync.Mutex{}
 var OK = []byte("OK\n")
 
 func init() {
-	flag.Parse()
 	metrics = make(map[string]map[string]bool)
-	influxdbUrl = "http://"+*influxdbHost+":"+*influxdbPort+"/db/"+*influxdbDb+"/series?u="+*influxdbUser+"&p="+*influxdbPassword
+	flag.Parse()
+	influxdbUrl = "http://" + *influxdbHost + ":" + *influxdbPort + "/db/" + *influxdbDb + "/series?u=" + *influxdbUser + "&p=" + *influxdbPassword
 }
 
 func main() {
@@ -54,7 +55,9 @@ func main() {
 	}()
 
 	// HTTP stuff
+	// expvar metrics is available at /debug/vars
 	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) { fmt.Fprintf(w, "pong") })
+	http.HandleFunc("/dump", dumpMetrics)
 	http.HandleFunc("/", metricPostHandler)
 	http.ListenAndServe(":"+*port, nil)
 }
@@ -77,7 +80,7 @@ func storeMetrics(snapshot map[string]map[string]bool) {
 		// POST to influx
 		resp, err := http.Post(influxdbUrl, "application/json", strings.NewReader(buf))
 		if err != nil {
-			fmt.Printf("Error sending report to influx db error='%v'\n",err)
+			fmt.Printf("Error sending report to influx db error='%v'\n", err)
 			return
 		}
 		if resp.StatusCode != 200 {
@@ -85,6 +88,14 @@ func storeMetrics(snapshot map[string]map[string]bool) {
 			return
 		}
 	}
+}
+
+func dumpMetrics(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Sets (and their size) seen since last report to InfluxDB\n\n")
+	for k, v := range metrics {
+		fmt.Fprintf(w, "%s: %d\n", k, len(v))
+	}
+	fmt.Fprintf(w, "\n")
 }
 
 func metricPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +122,6 @@ func metricPostHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Bad request body "+r.Method)
 		return
 	}
-
 
 	// split body
 	//TODO: use bytes.Split instead
