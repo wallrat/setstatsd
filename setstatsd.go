@@ -51,7 +51,6 @@ func main() {
 			mutex.Unlock()
 
 			// send snapshot
-			// redis.storeMetrics(snapshot)
 			go storeMetrics(snapshot)
 		}
 	}()
@@ -126,7 +125,6 @@ func metricPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// split body
-	//TODO: use bytes.Split instead
 	values := strings.Split(string(body), "\n")
 
 	// update state
