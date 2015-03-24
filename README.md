@@ -1,5 +1,8 @@
 # setstatsd
-A small daemon to collect unique members of sets and send their cardinality as metrics to [InfluxDb](http://influxdb.com/).
+A small daemon to count things unique. Collects values in sets and periodically send their cardinality to [InfluxDb](http://influxdb.com/).
+
+Typicale usecases are aggregating unique IPs or user Ids seen across a cluster of servers. For more general aggregation of counters etc,
+see [statsd](https://github.com/etsy/statsd/).
 
 ### Usage
 ```bash
@@ -14,13 +17,13 @@ Usage of ./setstatsd:
 ```
 
 ### Sending data to setstatsd
-The daemon listens for HTTP POSTs to /[set-name] and expects values separated by \n.
+The daemon listens for HTTP POSTs to /[set-name] and expects values separated by '\n'.
 
 ```
 curl -i --data $'Value1\nValue2\nValue3' localhost:9010/my-set-of-uniques
 ```
 
-To peek at collected metrics since last sent report:
+To peek at metrics collected since last snapshot sent report:
 ```
 $ curl localhost:9010/dump
 Sets (and their size) seen since last report to InfluxDB
