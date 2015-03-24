@@ -1,7 +1,7 @@
 # setstatsd
 A small daemon to count things unique. Collects values in sets and periodically send their cardinality to [InfluxDb](http://influxdb.com/).
 
-Typicale usecases are aggregating unique IPs or user Ids seen across a cluster of servers. For more general aggregation of counters etc,
+Typical use cases are aggregating unique IPs or user Ids seen across a cluster of servers. For more general aggregation of counters etc,
 see [statsd](https://github.com/etsy/statsd/).
 
 ### Usage
