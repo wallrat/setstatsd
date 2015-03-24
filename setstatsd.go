@@ -17,11 +17,13 @@ import _ "expvar"
 var port = flag.String("p", "9010", "port to listen to")
 
 var influxdbUrl string
-var influxdbHost = flag.String("host", "192.168.10.10", "InfluxDB Host")
+var influxdbHost = flag.String("host", "localhost", "InfluxDB Host")
 var influxdbPort = flag.String("port", "8086", "InfluxDB Port")
 var influxdbDb = flag.String("db", "metrics", "InfluxDB Database")
 var influxdbUser = flag.String("user", "metrics", "InfluxDB User")
 var influxdbPassword = flag.String("password", "metrics", "InfluxDB Password")
+
+var reportPeriod = flag.Duration("interval", 10*time.Second, "Interval between reports to InfluxDB")
 
 var metrics map[string]map[string]bool
 var mutex = &sync.Mutex{}
@@ -36,10 +38,10 @@ func init() {
 
 func main() {
 	fmt.Println("Starting set stats daemon listening for HTTP on port " + *port)
-	fmt.Println("Posting metrics to " + influxdbUrl)
+	fmt.Printf("Posting metrics to %s each %v\n", influxdbUrl, *reportPeriod)
 
 	// reporter
-	ticker := time.NewTicker(time.Second * 10)
+	ticker := time.NewTicker(*reportPeriod)
 	go func() {
 		for _ = range ticker.C {
 			// snapshot metrics

@@ -9,7 +9,7 @@ see [statsd](https://github.com/etsy/statsd/).
 $ ./setstatsd -h
 Usage of ./setstatsd:
   -p="9010": port to listen to
-  -host="192.168.10.10": InfluxDB Host
+  -host="localhost": InfluxDB Host
   -port="8086": InfluxDB Port
   -db="metrics": InfluxDB Database
   -password="metrics": InfluxDB Password
