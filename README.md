@@ -33,7 +33,7 @@ my-set-of-uniques: 3
 ```
 
 ### InfluxDB
-Currently supports InfluxDb 0.8, will be updated to the new protocol (with tagsets) as soon as 0.9 is released.
+Currently supports InfluxDb 0.8, will be updated to the new line protocol as soon as 0.9 is stable.
 
 ## License
 The MIT License (MIT)
